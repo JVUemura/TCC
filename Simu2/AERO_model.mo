@@ -66,7 +66,7 @@ package AERO_model
     model TURBINA
       import pi = Modelica.Constants.pi;
       // Mechanical parameters of turbine:
-      parameter Real Dtur = 0.3925 "Viscous turbine friction" annotation(
+      parameter Real Dtur = 0 "Viscous turbine friction" annotation(
         Dialog(group = "Mechanical Data"));
       parameter Real Jtur = 474.5721 "Turbine moment of inertia" annotation(
         Dialog(group = "Mechanical Data"));
@@ -470,7 +470,7 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
       Modelica.Blocks.Interfaces.RealInput W annotation(
         Placement(visible = true, transformation(origin = {-92, -20}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealOutput Te annotation(
-        Placement(visible = true, transformation(origin = {110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {110, 6}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealInput Wref annotation(
         Placement(visible = true, transformation(origin = {-92, 20}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-1.77636e-15, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
       Modelica.Blocks.Math.Add add(k2 = -1) annotation(
@@ -480,7 +480,11 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
   Modelica.Blocks.Math.Gain gain(k = kp)  annotation(
         Placement(visible = true, transformation(origin = {-16, -20}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Math.Add add1(k2 = -1)  annotation(
-        Placement(visible = true, transformation(origin = {74, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {38, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Blocks.Math.Add add2(k1 = -1)  annotation(
+        Placement(visible = true, transformation(origin = {74, 6}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Blocks.Interfaces.RealInput realInput annotation(
+        Placement(visible = true, transformation(origin = {-92, 58}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-80, -72}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
     equation
       connect(W, add.u2) annotation(
         Line(points = {{-92, -20}, {-48, -20}, {-48, 0}}, color = {0, 0, 127}));
@@ -490,12 +494,16 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Line(points = {{-25, 6}, {-12, 6}}, color = {0, 0, 127}));
       connect(W, gain.u) annotation(
         Line(points = {{-92, -20}, {-28, -20}}, color = {0, 0, 127}));
-      connect(gain.y, add1.u2) annotation(
-        Line(points = {{-5, -20}, {54, -20}, {54, -6}, {62, -6}}, color = {0, 0, 127}));
-      connect(add1.y, Te) annotation(
-        Line(points = {{86, 0}, {110, 0}}, color = {0, 0, 127}));
+  connect(gain.y, add1.u2) annotation(
+        Line(points = {{-5, -20}, {26, -20}, {26, -6}}, color = {0, 0, 127}));
   connect(integrator.y, add1.u1) annotation(
-        Line(points = {{12, 6}, {62, 6}}, color = {0, 0, 127}));
+        Line(points = {{12, 6}, {26, 6}}, color = {0, 0, 127}));
+  connect(add1.y, add2.u2) annotation(
+        Line(points = {{50, 0}, {62, 0}}, color = {0, 0, 127}));
+  connect(add2.y, Te) annotation(
+        Line(points = {{86, 6}, {110, 6}}, color = {0, 0, 127}));
+  connect(realInput, add2.u1) annotation(
+        Line(points = {{-92, 58}, {52, 58}, {52, 12}, {62, 12}}, color = {0, 0, 127}));
       annotation(
         Icon(graphics = {Ellipse(lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, extent = {{-100, 100}, {100, -100}}), Text(origin = {0, 1}, lineColor = {0, 0, 255}, extent = {{-58, 29}, {58, -29}}, textString = "RV")}));
     end RV;
@@ -543,34 +551,36 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Placement(visible = true, transformation(origin = {78, -50}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Basic.Star star annotation(
         Placement(visible = true, transformation(origin = {78, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
-      AERO_model.DFIG_model.RV rv(zeta_Wrm = 1)  annotation(
-        Placement(visible = true, transformation(origin = {23, 15}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
+      AERO_model.DFIG_model.RV rv( ts_Wrm = 1, zeta_Wrm = 1)  annotation(
+        Placement(visible = true, transformation(origin = {21, 15}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
       Modelica.Mechanics.Rotational.Sensors.SpeedSensor tacometro annotation(
         Placement(visible = true, transformation(origin = {14, 34}, extent = {{-4, -4}, {4, 4}}, rotation = -90)));
       Modelica.Blocks.Sources.Step Qref(height = 0, offset = 0, startTime = 0) annotation(
-        Placement(visible = true, transformation(origin = {58, 2}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {56, 2}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Sensors.ReactivePowerSensor reactivePowerSensor annotation(
         Placement(visible = true, transformation(origin = {49, 51}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
       AERO_model.DFIG_model.RQs rQs(ki_Q = 30)  annotation(
-        Placement(visible = true, transformation(origin = {41, 15}, extent = {{5, -5}, {-5, 5}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {39, 15}, extent = {{5, -5}, {-5, 5}}, rotation = 0)));
       AERO_model.DFIG_model.CONTROL control annotation(
-        Placement(visible = true, transformation(origin = {32, -14}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {30, -14}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
       AERO_model.DFIG_model.MIT mit(D = 0) annotation(
         Placement(visible = true, transformation(origin = {74, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       AERO_model.DFIG_model.PLL pll annotation(
-        Placement(visible = true, transformation(origin = {0, -18}, extent = {{-6, 6}, {6, -6}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {-2, -18}, extent = {{-6, 6}, {6, -6}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Basic.Resistor resistor(R = fill(10, 3)) annotation(
         Placement(visible = true, transformation(origin = {93, -14}, extent = {{-6, 5}, {6, -5}}, rotation = -90)));
       Modelica.Electrical.Polyphase.Sources.SignalCurrent FonteCorrente annotation(
         Placement(visible = true, transformation(origin = {78, -14}, extent = {{-6, -6}, {6, 6}}, rotation = 90)));
       AERO_model.TURBINA_model.TURBINA turbina annotation(
-        Placement(visible = true, transformation(origin = {-24, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {-48, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
       AERO_model.TURBINA_model.CRTL_TUR crtl_tur annotation(
-        Placement(visible = true, transformation(origin = {-24, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {-48, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
   AERO_model.TURBINA_model.EIXO Eixo annotation(
-        Placement(visible = true, transformation(origin = {0, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {-20, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Blocks.Sources.Ramp ramp(duration = 190, height = 5, offset = 7, startTime = 10)  annotation(
         Placement(visible = true, transformation(origin = {-86, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Mechanics.Rotational.Sensors.TorqueSensor torqueSensor annotation(
+        Placement(visible = true, transformation(origin = {2, 38}, extent = {{-6, -6}, {6, 6}}, rotation = 0)));
     equation
   connect(ground1.p, star1.pin_n) annotation(
         Line(points = {{-66, -46}, {-66, -44}}, color = {0, 0, 255}));
@@ -579,25 +589,25 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
   connect(rede.plug_n, star1.plug_p) annotation(
         Line(points = {{-66, -30}, {-66, -32}}, color = {0, 0, 255}));
   connect(tacometro.w, rv.W) annotation(
-        Line(points = {{14, 29.6}, {14, 14.6}, {17.5, 14.6}}, color = {0, 0, 127}));
+        Line(points = {{14, 29.6}, {14, 15}, {15.5, 15}}, color = {0, 0, 127}));
   connect(Qref.y, rQs.Qsref) annotation(
-        Line(points = {{53.6, 2}, {41, 2}, {41, 9.5}}, color = {0, 0, 127}));
+        Line(points = {{51.6, 2}, {39, 2}, {39, 9.5}}, color = {0, 0, 127}));
   connect(reactivePowerSensor.reactivePower, rQs.Qs) annotation(
-        Line(points = {{49, 46.6}, {49, 15}, {46.5, 15}}, color = {0, 0, 127}));
+        Line(points = {{49, 46.6}, {49, 15}, {44.5, 15}}, color = {0, 0, 127}));
   connect(reactivePowerSensor.plug_p, rede.plug_p) annotation(
         Line(points = {{45, 51}, {-66, 51}, {-66, -18}}, color = {0, 0, 255}));
   connect(tacometro.flange, mit.eixo) annotation(
         Line(points = {{14, 38}, {63, 38}}));
   connect(tacometro.w, control.Wrm) annotation(
-        Line(points = {{14, 29.6}, {14, -7.4}, {21, -7.4}}, color = {0, 0, 127}));
+        Line(points = {{14, 29.6}, {14, -7}, {19, -7}}, color = {0, 0, 127}));
   connect(reactivePowerSensor.plug_n, mit.plug_s) annotation(
         Line(points = {{53, 51}, {75, 51}, {75, 47}}, color = {0, 0, 255}));
   connect(rede.plug_p, pll.vabc) annotation(
-        Line(points = {{-66, -18}, {-6, -18}}, color = {0, 0, 255}));
+        Line(points = {{-66, -18}, {-9, -18}}, color = {0, 0, 255}));
   connect(pll.WePll, control.We_PLL) annotation(
-        Line(points = {{6.6, -18}, {21, -18}}, color = {0, 0, 127}));
+        Line(points = {{4.6, -18}, {19, -18}}, color = {0, 0, 127}));
   connect(control.iabcr, FonteCorrente.i) annotation(
-        Line(points = {{42.9, -13.9}, {70.9, -13.9}}, color = {0, 0, 127}, thickness = 0.5));
+        Line(points = {{41, -14}, {56.9, -14}, {56.9, -13.9}, {70.9, -13.9}}, color = {0, 0, 127}, thickness = 0.5));
   connect(FonteCorrente.plug_n, resistor.plug_p) annotation(
         Line(points = {{78, -8}, {93, -8}}, color = {0, 0, 255}));
   connect(star.plug_p, FonteCorrente.plug_p) annotation(
@@ -607,180 +617,79 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
   connect(FonteCorrente.plug_n, mit.plug_r) annotation(
         Line(points = {{78, -8}, {78, 30}}, color = {0, 0, 255}));
   connect(crtl_tur.beta, turbina.beta) annotation(
-        Line(points = {{-24, 10.8}, {-24, 27.8}}, color = {0, 0, 127}));
+        Line(points = {{-48, 10.8}, {-48, 27.8}}, color = {0, 0, 127}));
   connect(crtl_tur.Wrm_opt, rv.Wref) annotation(
-        Line(points = {{-15.2, 2}, {22.8, 2}, {22.8, 9.5}}, color = {0, 0, 127}));
+        Line(points = {{-39, 2}, {21, 2}, {21, 9.5}}, color = {0, 0, 127}));
   connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
-        Line(points = {{-15.2, 38}, {-5.2, 38}}));
-  connect(Eixo.flange_b, mit.eixo) annotation(
-        Line(points = {{11, 38}, {73, 38}}));
+        Line(points = {{-39, 38}, {-34.2, 38}}));
       connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
         Line(points = {{-24, 38}, {-14, 38}}));
-      connect(Eixo.flange_b, mit.eixo) annotation(
-        Line(points = {{8, 38}, {70, 38}}));
   connect(rv.Te, control.Te_esp) annotation(
-        Line(points = {{28.5, 15}, {28.5, -3}}, color = {0, 0, 127}));
+        Line(points = {{26.5, 15}, {26.5, -3}}, color = {0, 0, 127}));
   connect(rQs.Qout, control.Qs_esp) annotation(
-        Line(points = {{35.5, 15}, {35.5, -3}}, color = {0, 0, 127}));
+        Line(points = {{33.5, 15}, {33.5, -3}}, color = {0, 0, 127}));
   connect(pll.ThetaPll, control.thetaE_PLL) annotation(
-        Line(points = {{6.6, -14.4}, {22.6, -14.4}}, color = {0, 0, 127}));
+        Line(points = {{4.6, -14.4}, {20.6, -14.4}}, color = {0, 0, 127}));
   connect(pll.VqPll, control.Vqs_PLL) annotation(
-        Line(points = {{6.6, -21.6}, {22.6, -21.6}}, color = {0, 0, 127}));
+        Line(points = {{4.6, -21.6}, {20.6, -21.6}}, color = {0, 0, 127}));
   connect(ramp.y, turbina.Vw) annotation(
-        Line(points = {{-75, 38}, {-33, 38}}, color = {0, 0, 127}));
-  connect(ramp.y, crtl_tur.Vw) annotation(
-        Line(points = {{-75, 38}, {-47, 38}, {-47, 2}, {-33, 2}}, color = {0, 0, 127}));
+        Line(points = {{-75, 38}, {-57, 38}}, color = {0, 0, 127}));
+  connect(Eixo.flange_b, torqueSensor.flange_a) annotation(
+        Line(points = {{-8, 38}, {-4, 38}}));
+  connect(torqueSensor.flange_b, tacometro.flange) annotation(
+        Line(points = {{8, 38}, {14, 38}}));
+  connect(torqueSensor.tau, rv.realInput) annotation(
+        Line(points = {{-2, 32}, {-2, 11}, {17, 11}}, color = {0, 0, 127}));
+  connect(crtl_tur.Vw, ramp.y) annotation(
+        Line(points = {{-56, 2}, {-62, 2}, {-62, 38}, {-74, 38}}, color = {0, 0, 127}));
     protected
       annotation(
         experiment(StartTime = 0, StopTime = 200, Tolerance = 1e-06, Interval = 0.01));
     end windturbineDFIG_teste1;
     
-    model windturbineDFIG_teste2
-      extends Modelica.Icons.Example;
-      import pi = Modelica.Constants.pi;
-      TURBINA_model.TURBINA turbina annotation(
-        Placement(visible = true, transformation(origin = {-24, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
-      DFIG_model.CONTROL control annotation(
-        Placement(visible = true, transformation(origin = {32, -14}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
-      Modelica.Blocks.Sources.Step Qref(height = -1e6, offset = 0, startTime = 100) annotation(
-        Placement(visible = true, transformation(origin = {58, 2}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
-      DFIG_model.PLL pll annotation(
-        Placement(visible = true, transformation(origin = {0, -18}, extent = {{-6, 6}, {6, -6}}, rotation = 0)));
-      DFIG_model.RQs rQs(ki_Q = 30) annotation(
-        Placement(visible = true, transformation(origin = {41, 15}, extent = {{5, -5}, {-5, 5}}, rotation = 0)));
-      DFIG_model.RV rv(Md_Wrm = 10, ki = 200, kp = 200) annotation(
-        Placement(visible = true, transformation(origin = {23, 15}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
-      Modelica.Electrical.Polyphase.Basic.Star star1 annotation(
-        Placement(visible = true, transformation(origin = {-66, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
-      Modelica.Electrical.Analog.Basic.Ground ground annotation(
-        Placement(visible = true, transformation(origin = {78, -50}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
-      Modelica.Electrical.Polyphase.Sensors.ReactivePowerSensor reactivePowerSensor annotation(
-        Placement(visible = true, transformation(origin = {49, 51}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
-      Modelica.Mechanics.Rotational.Sensors.SpeedSensor tacometro annotation(
-        Placement(visible = true, transformation(origin = {14, 34}, extent = {{-4, -4}, {4, 4}}, rotation = -90)));
-      Modelica.Electrical.Polyphase.Sources.CosineVoltage rede(V = fill(sqrt(2 / 3) * 690, 3), f = fill(60, 3)) annotation(
-        Placement(visible = true, transformation(origin = {-66, -24}, extent = {{-6, 6}, {6, -6}}, rotation = -90)));
-      DFIG_model.MIT mit(D = 0) annotation(
-        Placement(visible = true, transformation(origin = {74, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-      Modelica.Blocks.Sources.Ramp ramp(duration = 180, height = 5, offset = 7, startTime = 10) annotation(
-        Placement(visible = true, transformation(origin = {-86, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-      Modelica.Electrical.Analog.Basic.Ground ground1 annotation(
-        Placement(visible = true, transformation(origin = {-66, -50}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
-      Modelica.Electrical.Polyphase.Basic.Star star annotation(
-        Placement(visible = true, transformation(origin = {78, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
-    TURBINA_model.EIXO Eixo annotation(
-        Placement(visible = true, transformation(origin = {0, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-      Modelica.Electrical.Polyphase.Sources.SignalCurrent FonteCorrente annotation(
-        Placement(visible = true, transformation(origin = {78, -14}, extent = {{-6, -6}, {6, 6}}, rotation = 90)));
-  TURBINA_model.CRTL_TUR crtl_tur annotation(
-        Placement(visible = true, transformation(origin = {-24, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
-  Modelica.Electrical.Polyphase.Basic.Resistor resistor(R = fill(10, 3)) annotation(
-        Placement(visible = true, transformation(origin = {93, -14}, extent = {{-6, 5}, {6, -5}}, rotation = -90)));
-    equation
-  connect(control.iabcr, FonteCorrente.i) annotation(
-        Line(points = {{42.9, -13.9}, {70.9, -13.9}}, color = {0, 0, 127}, thickness = 0.5));
-  connect(Qref.y, rQs.Qsref) annotation(
-        Line(points = {{53.6, 2}, {41, 2}, {41, 9.5}}, color = {0, 0, 127}));
-  connect(reactivePowerSensor.plug_n, mit.plug_s) annotation(
-        Line(points = {{53, 51}, {75, 51}, {75, 47}}, color = {0, 0, 255}));
-  connect(crtl_tur.beta, turbina.beta) annotation(
-        Line(points = {{-24, 10.8}, {-24, 27.8}}, color = {0, 0, 127}));
-  connect(pll.VqPll, control.Vqs_PLL) annotation(
-        Line(points = {{6.6, -21.6}, {22.6, -21.6}}, color = {0, 0, 127}));
-  connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
-        Line(points = {{-24, 38}, {-14, 38}}));
-  connect(rQs.Qout, control.Qs_esp) annotation(
-        Line(points = {{35.5, 15}, {35.5, -3}}, color = {0, 0, 127}));
-  connect(tacometro.w, control.Wrm) annotation(
-        Line(points = {{14, 29.6}, {14, -7.4}, {21, -7.4}}, color = {0, 0, 127}));
-  connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
-        Line(points = {{-15.2, 38}, {-5.2, 38}}));
-  connect(crtl_tur.Wrm_opt, rv.Wref) annotation(
-        Line(points = {{-15.2, 2}, {22.8, 2}, {22.8, 9.5}}, color = {0, 0, 127}));
-  connect(reactivePowerSensor.plug_p, rede.plug_p) annotation(
-        Line(points = {{45, 51}, {-66, 51}, {-66, -18}}, color = {0, 0, 255}));
-  connect(pll.WePll, control.We_PLL) annotation(
-        Line(points = {{6.6, -18}, {21, -18}}, color = {0, 0, 127}));
-  connect(reactivePowerSensor.reactivePower, rQs.Qs) annotation(
-        Line(points = {{49, 46.6}, {49, 15}, {46.5, 15}}, color = {0, 0, 127}));
-  connect(FonteCorrente.plug_p, resistor.plug_n) annotation(
-        Line(points = {{78, -20}, {93, -20}}, color = {0, 0, 255}));
-  connect(FonteCorrente.plug_n, mit.plug_r) annotation(
-        Line(points = {{78, -8}, {78, 30}}, color = {0, 0, 255}));
-      connect(ground1.p, star1.pin_n) annotation(
-        Line(points = {{-66, -46}, {-66, -44}}, color = {0, 0, 255}));
-      connect(rede.plug_n, star1.plug_p) annotation(
-        Line(points = {{-66, -30}, {-66, -32}}, color = {0, 0, 255}));
-  connect(ramp.y, crtl_tur.Vw) annotation(
-        Line(points = {{-75, 38}, {-47, 38}, {-47, 2}, {-33, 2}}, color = {0, 0, 127}));
-  connect(rv.Te, control.Te_esp) annotation(
-        Line(points = {{28.5, 15}, {28.5, -3}}, color = {0, 0, 127}));
-  connect(Eixo.flange_b, mit.eixo) annotation(
-        Line(points = {{8, 38}, {70, 38}}));
-  connect(rede.plug_p, pll.vabc) annotation(
-        Line(points = {{-66, -18}, {-6, -18}}, color = {0, 0, 255}));
-      connect(tacometro.w, rv.W) annotation(
-        Line(points = {{14, 29.6}, {14, 14.6}, {17.5, 14.6}}, color = {0, 0, 127}));
-  connect(ground.p, star.pin_n) annotation(
-        Line(points = {{78, -46}, {78, -44}}, color = {0, 0, 255}));
-      connect(tacometro.flange, mit.eixo) annotation(
-        Line(points = {{14, 38}, {63, 38}}));
-      connect(FonteCorrente.plug_n, resistor.plug_p) annotation(
-        Line(points = {{78, -8}, {93, -8}}, color = {0, 0, 255}));
-  connect(pll.ThetaPll, control.thetaE_PLL) annotation(
-        Line(points = {{6.6, -14.4}, {22.6, -14.4}}, color = {0, 0, 127}));
-      connect(star.plug_p, FonteCorrente.plug_p) annotation(
-        Line(points = {{78, -32}, {78, -20}}, color = {0, 0, 255}));
-      connect(Eixo.flange_b, mit.eixo) annotation(
-        Line(points = {{11, 38}, {73, 38}}));
-  connect(ramp.y, turbina.Vw) annotation(
-        Line(points = {{-75, 38}, {-33, 38}}, color = {0, 0, 127}));
-    protected
-      annotation(
-        experiment(StartTime = 0, StopTime = 200, Tolerance = 1e-06, Interval = 0.001));
-    end windturbineDFIG_teste2;
-    
     model windturbineDFIG_teste3
       extends Modelica.Icons.Example;
       import pi = Modelica.Constants.pi;
-      TURBINA_model.TURBINA turbina(ts = 1)  annotation(
-        Placement(visible = true, transformation(origin = {-24, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+      AERO_model.TURBINA_model.TURBINA turbina(ts = 1)  annotation(
+        Placement(visible = true, transformation(origin = {-46, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
       DFIG_model.CONTROL control annotation(
         Placement(visible = true, transformation(origin = {32, -14}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
       Modelica.Blocks.Sources.Step Qref(height = 0, offset = 0, startTime = 0) annotation(
         Placement(visible = true, transformation(origin = {58, 2}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
-      DFIG_model.PLL pll annotation(
-        Placement(visible = true, transformation(origin = {0, -18}, extent = {{-6, 6}, {6, -6}}, rotation = 0)));
+      AERO_model.DFIG_model.PLL pll annotation(
+        Placement(visible = true, transformation(origin = {-22, -18}, extent = {{-6, 6}, {6, -6}}, rotation = 0)));
       DFIG_model.RQs rQs(ki_Q = 30) annotation(
         Placement(visible = true, transformation(origin = {41, 15}, extent = {{5, -5}, {-5, 5}}, rotation = 0)));
       DFIG_model.RV rv(ts_Wrm = 3) annotation(
         Placement(visible = true, transformation(origin = {23, 15}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Basic.Star star1 annotation(
-        Placement(visible = true, transformation(origin = {-66, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
+        Placement(visible = true, transformation(origin = {-88, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
       Modelica.Electrical.Analog.Basic.Ground ground annotation(
         Placement(visible = true, transformation(origin = {78, -50}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Sensors.ReactivePowerSensor reactivePowerSensor annotation(
         Placement(visible = true, transformation(origin = {49, 51}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
       Modelica.Mechanics.Rotational.Sensors.SpeedSensor tacometro annotation(
-        Placement(visible = true, transformation(origin = {14, 34}, extent = {{-4, -4}, {4, 4}}, rotation = -90)));
+        Placement(visible = true, transformation(origin = {12, 34}, extent = {{-4, -4}, {4, 4}}, rotation = -90)));
       Modelica.Electrical.Polyphase.Sources.CosineVoltage rede(V = fill(sqrt(2 / 3) * 690, 3), f = fill(60, 3)) annotation(
-        Placement(visible = true, transformation(origin = {-66, -24}, extent = {{-6, 6}, {6, -6}}, rotation = -90)));
+        Placement(visible = true, transformation(origin = {-88, -24}, extent = {{-6, 6}, {6, -6}}, rotation = -90)));
       DFIG_model.MIT mit(D = 0) annotation(
         Placement(visible = true, transformation(origin = {74, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       Modelica.Electrical.Analog.Basic.Ground ground1 annotation(
-        Placement(visible = true, transformation(origin = {-66, -50}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {-88, -50}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Basic.Star star annotation(
         Placement(visible = true, transformation(origin = {78, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
-    TURBINA_model.EIXO Eixo annotation(
-        Placement(visible = true, transformation(origin = {0, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    AERO_model.TURBINA_model.EIXO Eixo annotation(
+        Placement(visible = true, transformation(origin = {-22, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Sources.SignalCurrent FonteCorrente annotation(
         Placement(visible = true, transformation(origin = {78, -14}, extent = {{-6, -6}, {6, 6}}, rotation = 90)));
-    TURBINA_model.CRTL_TUR crtl_tur annotation(
-        Placement(visible = true, transformation(origin = {-24, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+    AERO_model.TURBINA_model.CRTL_TUR crtl_tur annotation(
+        Placement(visible = true, transformation(origin = {-46, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
     Modelica.Electrical.Polyphase.Basic.Resistor resistor(R = fill(10, 3)) annotation(
         Placement(visible = true, transformation(origin = {93, -14}, extent = {{-6, 5}, {6, -5}}, rotation = -90)));
   AERO_model.WIND_model.WINDSPEED windspeed(Vmax_rajada = 3, Vw_constante = 12, tf_rajada = 90, tf_rampa = 0, ti_rajada = 10, ti_rampa = 0)  annotation(
-        Placement(visible = true, transformation(origin = {-56, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {-78, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+  Modelica.Mechanics.Rotational.Sensors.TorqueSensor torqueSensor annotation(
+        Placement(visible = true, transformation(origin = {-2, 38}, extent = {{-6, -6}, {6, 6}}, rotation = 0)));
     equation
       connect(control.iabcr, FonteCorrente.i) annotation(
         Line(points = {{42.9, -13.9}, {70.9, -13.9}}, color = {0, 0, 127}, thickness = 0.5));
@@ -788,61 +697,63 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Line(points = {{53.6, 2}, {41, 2}, {41, 9.5}}, color = {0, 0, 127}));
       connect(reactivePowerSensor.plug_n, mit.plug_s) annotation(
         Line(points = {{53, 51}, {75, 51}, {75, 47}}, color = {0, 0, 255}));
-      connect(crtl_tur.beta, turbina.beta) annotation(
-        Line(points = {{-24, 10.8}, {-24, 27.8}}, color = {0, 0, 127}));
-      connect(pll.VqPll, control.Vqs_PLL) annotation(
-        Line(points = {{6.6, -21.6}, {22.6, -21.6}}, color = {0, 0, 127}));
-      connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
-        Line(points = {{-24, 38}, {-14, 38}}));
+  connect(crtl_tur.beta, turbina.beta) annotation(
+        Line(points = {{-46, 10.8}, {-46, 27.8}}, color = {0, 0, 127}));
+  connect(pll.VqPll, control.Vqs_PLL) annotation(
+        Line(points = {{-15, -22}, {14.6, -22}, {14.6, -21.6}, {22.6, -21.6}}, color = {0, 0, 127}));
+  connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
+        Line(points = {{-37.2, 38}, {-27.2, 38}}));
       connect(rQs.Qout, control.Qs_esp) annotation(
         Line(points = {{35.5, 15}, {35.5, -3}}, color = {0, 0, 127}));
-      connect(tacometro.w, control.Wrm) annotation(
-        Line(points = {{14, 29.6}, {14, -7.4}, {21, -7.4}}, color = {0, 0, 127}));
+  connect(tacometro.w, control.Wrm) annotation(
+        Line(points = {{12, 30}, {12, -7.4}, {21, -7.4}}, color = {0, 0, 127}));
       connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
         Line(points = {{-15.2, 38}, {-5.2, 38}}));
-      connect(crtl_tur.Wrm_opt, rv.Wref) annotation(
-        Line(points = {{-15.2, 2}, {22.8, 2}, {22.8, 9.5}}, color = {0, 0, 127}));
-      connect(reactivePowerSensor.plug_p, rede.plug_p) annotation(
-        Line(points = {{45, 51}, {-66, 51}, {-66, -18}}, color = {0, 0, 255}));
-      connect(pll.WePll, control.We_PLL) annotation(
-        Line(points = {{6.6, -18}, {21, -18}}, color = {0, 0, 127}));
+  connect(crtl_tur.Wrm_opt, rv.Wref) annotation(
+        Line(points = {{-37, 2}, {22.8, 2}, {22.8, 9.5}}, color = {0, 0, 127}));
+  connect(reactivePowerSensor.plug_p, rede.plug_p) annotation(
+        Line(points = {{45, 51}, {-88, 51}, {-88, -18}}, color = {0, 0, 255}));
+  connect(pll.WePll, control.We_PLL) annotation(
+        Line(points = {{-15, -18}, {21, -18}}, color = {0, 0, 127}));
       connect(reactivePowerSensor.reactivePower, rQs.Qs) annotation(
         Line(points = {{49, 46.6}, {49, 15}, {46.5, 15}}, color = {0, 0, 127}));
       connect(FonteCorrente.plug_p, resistor.plug_n) annotation(
         Line(points = {{78, -20}, {93, -20}}, color = {0, 0, 255}));
       connect(FonteCorrente.plug_n, mit.plug_r) annotation(
         Line(points = {{78, -8}, {78, 30}}, color = {0, 0, 255}));
-      connect(ground1.p, star1.pin_n) annotation(
-        Line(points = {{-66, -46}, {-66, -44}}, color = {0, 0, 255}));
-      connect(rede.plug_n, star1.plug_p) annotation(
-        Line(points = {{-66, -30}, {-66, -32}}, color = {0, 0, 255}));
+  connect(ground1.p, star1.pin_n) annotation(
+        Line(points = {{-88, -46}, {-88, -44}}, color = {0, 0, 255}));
+  connect(rede.plug_n, star1.plug_p) annotation(
+        Line(points = {{-88, -30}, {-88, -32}}, color = {0, 0, 255}));
       connect(rv.Te, control.Te_esp) annotation(
         Line(points = {{28.5, 15}, {28.5, -3}}, color = {0, 0, 127}));
-      connect(Eixo.flange_b, mit.eixo) annotation(
-        Line(points = {{8, 38}, {70, 38}}));
-      connect(rede.plug_p, pll.vabc) annotation(
-        Line(points = {{-66, -18}, {-6, -18}}, color = {0, 0, 255}));
-      connect(tacometro.w, rv.W) annotation(
-        Line(points = {{14, 29.6}, {14, 14.6}, {17.5, 14.6}}, color = {0, 0, 127}));
+  connect(rede.plug_p, pll.vabc) annotation(
+        Line(points = {{-88, -18}, {-28, -18}}, color = {0, 0, 255}));
+  connect(tacometro.w, rv.W) annotation(
+        Line(points = {{12, 30}, {12, 14.6}, {17.5, 14.6}}, color = {0, 0, 127}));
       connect(ground.p, star.pin_n) annotation(
         Line(points = {{78, -46}, {78, -44}}, color = {0, 0, 255}));
-      connect(tacometro.flange, mit.eixo) annotation(
-        Line(points = {{14, 38}, {63, 38}}));
+  connect(tacometro.flange, mit.eixo) annotation(
+        Line(points = {{12, 38}, {63, 38}}));
       connect(FonteCorrente.plug_n, resistor.plug_p) annotation(
         Line(points = {{78, -8}, {93, -8}}, color = {0, 0, 255}));
-      connect(pll.ThetaPll, control.thetaE_PLL) annotation(
-        Line(points = {{6.6, -14.4}, {22.6, -14.4}}, color = {0, 0, 127}));
+  connect(pll.ThetaPll, control.thetaE_PLL) annotation(
+        Line(points = {{-15, -14}, {14.6, -14}, {14.6, -14.4}, {22.6, -14.4}}, color = {0, 0, 127}));
       connect(star.plug_p, FonteCorrente.plug_p) annotation(
         Line(points = {{78, -32}, {78, -20}}, color = {0, 0, 255}));
-      connect(Eixo.flange_b, mit.eixo) annotation(
-        Line(points = {{11, 38}, {73, 38}}));
   connect(windspeed.Vw, turbina.Vw) annotation(
-        Line(points = {{-48, 38}, {-32, 38}}, color = {0, 0, 127}));
+        Line(points = {{-69.04, 38}, {-53.04, 38}}, color = {0, 0, 127}));
   connect(windspeed.Vw, crtl_tur.Vw) annotation(
-        Line(points = {{-48, 38}, {-42, 38}, {-42, 2}, {-32, 2}}, color = {0, 0, 127}));
+        Line(points = {{-69.04, 38}, {-63.04, 38}, {-63.04, 2}, {-53.04, 2}}, color = {0, 0, 127}));
+  connect(Eixo.flange_b, torqueSensor.flange_a) annotation(
+        Line(points = {{-10, 38}, {-8, 38}}));
+  connect(torqueSensor.flange_b, tacometro.flange) annotation(
+        Line(points = {{4, 38}, {12, 38}}));
+  connect(torqueSensor.tau, rv.realInput) annotation(
+        Line(points = {{-6, 32}, {-6, 12}, {20, 12}}, color = {0, 0, 127}));
     protected
       annotation(
-        experiment(StartTime = 0, StopTime = 100, Tolerance = 1e-06, Interval = 0.001));
+        experiment(StartTime = 0, StopTime = 100, Tolerance = 1e-06, Interval = 0.0001));
     end windturbineDFIG_teste3;
     
     model windturbineDFIG_teste4
@@ -953,8 +864,8 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
     model windturbineDFIG_teste5
       extends Modelica.Icons.Example;
       import pi = Modelica.Constants.pi;
-      TURBINA_model.TURBINA turbina(ts = 1)  annotation(
-        Placement(visible = true, transformation(origin = {-24, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+      AERO_model.TURBINA_model.TURBINA turbina(ts = 1)  annotation(
+        Placement(visible = true, transformation(origin = {-42, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
       DFIG_model.CONTROL control annotation(
         Placement(visible = true, transformation(origin = {32, -14}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
       Modelica.Blocks.Sources.Step Qref(height = 0, offset = 0, startTime = 0) annotation(
@@ -983,14 +894,125 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Placement(visible = true, transformation(origin = {78, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
       Modelica.Electrical.Polyphase.Sources.SignalCurrent FonteCorrente annotation(
         Placement(visible = true, transformation(origin = {78, -14}, extent = {{-6, -6}, {6, 6}}, rotation = 90)));
-    TURBINA_model.CRTL_TUR crtl_tur annotation(
-        Placement(visible = true, transformation(origin = {-24, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+    AERO_model.TURBINA_model.CRTL_TUR crtl_tur annotation(
+        Placement(visible = true, transformation(origin = {-42, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
     Modelica.Electrical.Polyphase.Basic.Resistor resistor(R = fill(10, 3)) annotation(
         Placement(visible = true, transformation(origin = {93, -14}, extent = {{-6, 5}, {6, -5}}, rotation = -90)));
     Modelica.Blocks.Sources.Ramp ramp(duration = 0, height = 13, offset = 5, startTime = 50) annotation(
         Placement(visible = true, transformation(origin = {-86, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  TURBINA_model.EIXO Eixo annotation(
-        Placement(visible = true, transformation(origin = {0, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  AERO_model.TURBINA_model.EIXO Eixo annotation(
+        Placement(visible = true, transformation(origin = {-18, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Mechanics.Rotational.Sensors.TorqueSensor torqueSensor annotation(
+        Placement(visible = true, transformation(origin = {2, 38}, extent = {{-6, -6}, {6, 6}}, rotation = 0)));
+    equation
+      connect(control.iabcr, FonteCorrente.i) annotation(
+        Line(points = {{42.9, -13.9}, {70.9, -13.9}}, color = {0, 0, 127}, thickness = 0.5));
+      connect(Qref.y, rQs.Qsref) annotation(
+        Line(points = {{53.6, 2}, {41, 2}, {41, 9.5}}, color = {0, 0, 127}));
+      connect(reactivePowerSensor.plug_n, mit.plug_s) annotation(
+        Line(points = {{53, 51}, {75, 51}, {75, 47}}, color = {0, 0, 255}));
+  connect(crtl_tur.beta, turbina.beta) annotation(
+        Line(points = {{-42, 10.8}, {-42, 27.8}}, color = {0, 0, 127}));
+      connect(pll.VqPll, control.Vqs_PLL) annotation(
+        Line(points = {{6.6, -21.6}, {22.6, -21.6}}, color = {0, 0, 127}));
+      connect(rQs.Qout, control.Qs_esp) annotation(
+        Line(points = {{35.5, 15}, {35.5, -3}}, color = {0, 0, 127}));
+      connect(tacometro.w, control.Wrm) annotation(
+        Line(points = {{14, 29.6}, {14, -7.4}, {21, -7.4}}, color = {0, 0, 127}));
+  connect(crtl_tur.Wrm_opt, rv.Wref) annotation(
+        Line(points = {{-33, 2}, {22.8, 2}, {22.8, 9.5}}, color = {0, 0, 127}));
+      connect(reactivePowerSensor.plug_p, rede.plug_p) annotation(
+        Line(points = {{45, 51}, {-66, 51}, {-66, -18}}, color = {0, 0, 255}));
+      connect(pll.WePll, control.We_PLL) annotation(
+        Line(points = {{6.6, -18}, {21, -18}}, color = {0, 0, 127}));
+      connect(reactivePowerSensor.reactivePower, rQs.Qs) annotation(
+        Line(points = {{49, 46.6}, {49, 15}, {46.5, 15}}, color = {0, 0, 127}));
+      connect(FonteCorrente.plug_p, resistor.plug_n) annotation(
+        Line(points = {{78, -20}, {93, -20}}, color = {0, 0, 255}));
+      connect(FonteCorrente.plug_n, mit.plug_r) annotation(
+        Line(points = {{78, -8}, {78, 30}}, color = {0, 0, 255}));
+      connect(ground1.p, star1.pin_n) annotation(
+        Line(points = {{-66, -46}, {-66, -44}}, color = {0, 0, 255}));
+      connect(rede.plug_n, star1.plug_p) annotation(
+        Line(points = {{-66, -30}, {-66, -32}}, color = {0, 0, 255}));
+      connect(rv.Te, control.Te_esp) annotation(
+        Line(points = {{28.5, 15}, {28.5, -3}}, color = {0, 0, 127}));
+      connect(rede.plug_p, pll.vabc) annotation(
+        Line(points = {{-66, -18}, {-6, -18}}, color = {0, 0, 255}));
+      connect(tacometro.w, rv.W) annotation(
+        Line(points = {{14, 29.6}, {14, 14.6}, {17.5, 14.6}}, color = {0, 0, 127}));
+      connect(ground.p, star.pin_n) annotation(
+        Line(points = {{78, -46}, {78, -44}}, color = {0, 0, 255}));
+      connect(tacometro.flange, mit.eixo) annotation(
+        Line(points = {{14, 38}, {63, 38}}));
+      connect(FonteCorrente.plug_n, resistor.plug_p) annotation(
+        Line(points = {{78, -8}, {93, -8}}, color = {0, 0, 255}));
+      connect(pll.ThetaPll, control.thetaE_PLL) annotation(
+        Line(points = {{6.6, -14.4}, {22.6, -14.4}}, color = {0, 0, 127}));
+      connect(star.plug_p, FonteCorrente.plug_p) annotation(
+        Line(points = {{78, -32}, {78, -20}}, color = {0, 0, 255}));
+  connect(ramp.y, turbina.Vw) annotation(
+        Line(points = {{-74, 38}, {-51, 38}}, color = {0, 0, 127}));
+  connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
+        Line(points = {{-33.2, 38}, {-23.2, 38}}));
+      connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
+        Line(points = {{-24, 38}, {-14, 38}}));
+  connect(Eixo.flange_b, torqueSensor.flange_a) annotation(
+        Line(points = {{-6, 38}, {-4, 38}}));
+  connect(torqueSensor.flange_b, tacometro.flange) annotation(
+        Line(points = {{8, 38}, {14, 38}}));
+  connect(torqueSensor.tau, rv.realInput) annotation(
+        Line(points = {{-2, 32}, {-2, 12}, {20, 12}}, color = {0, 0, 127}));
+  connect(ramp.y, crtl_tur.Vw) annotation(
+        Line(points = {{-74, 38}, {-62, 38}, {-62, 2}, {-50, 2}}, color = {0, 0, 127}));
+    protected
+      annotation(
+        experiment(StartTime = 0, StopTime = 100, Tolerance = 1e-06, Interval = 0.001));
+    end windturbineDFIG_teste5;
+    
+    model windturbineDFIG_teste6
+      extends Modelica.Icons.Example;
+      import pi = Modelica.Constants.pi;
+      AERO_model.TURBINA_model.TURBINA turbina(ts = 1)  annotation(
+        Placement(visible = true, transformation(origin = {-42, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+      DFIG_model.CONTROL control annotation(
+        Placement(visible = true, transformation(origin = {32, -14}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
+      Modelica.Blocks.Sources.Step Qref(height = 0, offset = 0, startTime = 0) annotation(
+        Placement(visible = true, transformation(origin = {58, 2}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
+      DFIG_model.PLL pll annotation(
+        Placement(visible = true, transformation(origin = {0, -18}, extent = {{-6, 6}, {6, -6}}, rotation = 0)));
+      DFIG_model.RQs rQs(ki_Q = 30) annotation(
+        Placement(visible = true, transformation(origin = {41, 15}, extent = {{5, -5}, {-5, 5}}, rotation = 0)));
+      DFIG_model.RV rv(Dtotal =  0,Jtotal = 474.5721 + 59, ts_Wrm = 3, zeta_Wrm = 1) annotation(
+        Placement(visible = true, transformation(origin = {23, 15}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
+      Modelica.Electrical.Polyphase.Basic.Star star1 annotation(
+        Placement(visible = true, transformation(origin = {-66, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
+      Modelica.Electrical.Analog.Basic.Ground ground annotation(
+        Placement(visible = true, transformation(origin = {78, -50}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+      Modelica.Electrical.Polyphase.Sensors.ReactivePowerSensor reactivePowerSensor annotation(
+        Placement(visible = true, transformation(origin = {49, 51}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+      Modelica.Mechanics.Rotational.Sensors.SpeedSensor tacometro annotation(
+        Placement(visible = true, transformation(origin = {14, 34}, extent = {{-4, -4}, {4, 4}}, rotation = -90)));
+      Modelica.Electrical.Polyphase.Sources.CosineVoltage rede(V = fill(sqrt(2 / 3) * 690, 3), f = fill(60, 3)) annotation(
+        Placement(visible = true, transformation(origin = {-66, -24}, extent = {{-6, 6}, {6, -6}}, rotation = -90)));
+      DFIG_model.MIT mit(D = 0) annotation(
+        Placement(visible = true, transformation(origin = {74, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Modelica.Electrical.Analog.Basic.Ground ground1 annotation(
+        Placement(visible = true, transformation(origin = {-66, -50}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+      Modelica.Electrical.Polyphase.Basic.Star star annotation(
+        Placement(visible = true, transformation(origin = {78, -38}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
+      Modelica.Electrical.Polyphase.Sources.SignalCurrent FonteCorrente annotation(
+        Placement(visible = true, transformation(origin = {78, -14}, extent = {{-6, -6}, {6, 6}}, rotation = 90)));
+    AERO_model.TURBINA_model.CRTL_TUR crtl_tur annotation(
+        Placement(visible = true, transformation(origin = {-42, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
+    Modelica.Electrical.Polyphase.Basic.Resistor resistor(R = fill(10, 3)) annotation(
+        Placement(visible = true, transformation(origin = {93, -14}, extent = {{-6, 5}, {6, -5}}, rotation = -90)));
+    Modelica.Blocks.Sources.Ramp ramp(duration = 0, height = 13, offset = 5, startTime = 50) annotation(
+        Placement(visible = true, transformation(origin = {-86, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    AERO_model.TURBINA_model.EIXO Eixo annotation(
+        Placement(visible = true, transformation(origin = {-18, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Modelica.Blocks.Sources.Ramp ramp1(duration = 0, height = 0, offset = 0, startTime = 0) annotation(
+        Placement(visible = true, transformation(origin = {-12, 12}, extent = {{-6, -6}, {6, 6}}, rotation = 0)));
     equation
       connect(control.iabcr, FonteCorrente.i) annotation(
         Line(points = {{42.9, -13.9}, {70.9, -13.9}}, color = {0, 0, 127}, thickness = 0.5));
@@ -999,7 +1021,7 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
       connect(reactivePowerSensor.plug_n, mit.plug_s) annotation(
         Line(points = {{53, 51}, {75, 51}, {75, 47}}, color = {0, 0, 255}));
       connect(crtl_tur.beta, turbina.beta) annotation(
-        Line(points = {{-24, 10.8}, {-24, 27.8}}, color = {0, 0, 127}));
+        Line(points = {{-42, 10.8}, {-42, 27.8}}, color = {0, 0, 127}));
       connect(pll.VqPll, control.Vqs_PLL) annotation(
         Line(points = {{6.6, -21.6}, {22.6, -21.6}}, color = {0, 0, 127}));
       connect(rQs.Qout, control.Qs_esp) annotation(
@@ -1007,7 +1029,7 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
       connect(tacometro.w, control.Wrm) annotation(
         Line(points = {{14, 29.6}, {14, -7.4}, {21, -7.4}}, color = {0, 0, 127}));
       connect(crtl_tur.Wrm_opt, rv.Wref) annotation(
-        Line(points = {{-15.2, 2}, {22.8, 2}, {22.8, 9.5}}, color = {0, 0, 127}));
+        Line(points = {{-33, 2}, {22.8, 2}, {22.8, 9.5}}, color = {0, 0, 127}));
       connect(reactivePowerSensor.plug_p, rede.plug_p) annotation(
         Line(points = {{45, 51}, {-66, 51}, {-66, -18}}, color = {0, 0, 255}));
       connect(pll.WePll, control.We_PLL) annotation(
@@ -1039,21 +1061,21 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
       connect(star.plug_p, FonteCorrente.plug_p) annotation(
         Line(points = {{78, -32}, {78, -20}}, color = {0, 0, 255}));
       connect(ramp.y, turbina.Vw) annotation(
-        Line(points = {{-74, 38}, {-32, 38}}, color = {0, 0, 127}));
+        Line(points = {{-74, 38}, {-51, 38}}, color = {0, 0, 127}));
       connect(ramp.y, crtl_tur.Vw) annotation(
-        Line(points = {{-74, 38}, {-46, 38}, {-46, 2}, {-32, 2}}, color = {0, 0, 127}));
-      connect(Eixo.flange_b, mit.eixo) annotation(
-        Line(points = {{11, 38}, {73, 38}}));
-      connect(Eixo.flange_b, mit.eixo) annotation(
-        Line(points = {{8, 38}, {70, 38}}));
+        Line(points = {{-74, 38}, {-46, 38}, {-46, 2}, {-51, 2}}, color = {0, 0, 127}));
       connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
-        Line(points = {{-15.2, 38}, {-5.2, 38}}));
+        Line(points = {{-33.2, 38}, {-23.2, 38}}));
       connect(turbina.flange_Eixo, Eixo.flange_a) annotation(
         Line(points = {{-24, 38}, {-14, 38}}));
+  connect(Eixo.flange_b, tacometro.flange) annotation(
+        Line(points = {{-6, 38}, {14, 38}}));
+  connect(ramp1.y, rv.realInput) annotation(
+        Line(points = {{-5, 12}, {20, 12}}, color = {0, 0, 127}));
     protected
       annotation(
         experiment(StartTime = 0, StopTime = 100, Tolerance = 1e-06, Interval = 0.001));
-    end windturbineDFIG_teste5;
+    end windturbineDFIG_teste6;
   end Examples;
   annotation(
     uses(Modelica(version = "4.0.0")));

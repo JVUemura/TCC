@@ -276,7 +276,7 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
       Modelica.Blocks.Interfaces.RealInput W annotation(
         Placement(visible = true, transformation(origin = {-92, -20}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealOutput Te annotation(
-        Placement(visible = true, transformation(origin = {110, -6}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+        Placement(visible = true, transformation(origin = {140, -6}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
       Modelica.Blocks.Interfaces.RealInput Wref annotation(
         Placement(visible = true, transformation(origin = {-92, 20}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-1.77636e-15, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
       Modelica.Blocks.Math.Add add(k2 = -1) annotation(
@@ -292,19 +292,85 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Line(points = {{-92, -20}, {-28, -20}, {-28, -6}, {-18, -6}}, color = {0, 0, 127}));
       connect(Wref, add.u1) annotation(
         Line(points = {{-92, 20}, {-40, 20}, {-40, 6}, {-18, 6}}, color = {0, 0, 127}));
-  connect(add.y, integrator.u) annotation(
+      connect(add.y, integrator.u) annotation(
         Line(points = {{6, 0}, {16, 0}}, color = {0, 0, 127}));
-  connect(integrator.y, add1.u1) annotation(
+      connect(integrator.y, add1.u1) annotation(
         Line(points = {{40, 0}, {50, 0}}, color = {0, 0, 127}));
-  connect(add1.y, Te) annotation(
-        Line(points = {{74, -6}, {110, -6}}, color = {0, 0, 127}));
-  connect(gain.y, add1.u2) annotation(
+      connect(gain.y, add1.u2) annotation(
         Line(points = {{10, -36}, {44, -36}, {44, -12}, {50, -12}}, color = {0, 0, 127}));
-  connect(gain.u, W) annotation(
+      connect(gain.u, W) annotation(
         Line(points = {{-14, -36}, {-92, -36}, {-92, -20}}, color = {0, 0, 127}));
+  connect(add1.y, Te) annotation(
+        Line(points = {{74, -6}, {140, -6}}, color = {0, 0, 127}));
       annotation(
         Icon(graphics = {Ellipse(lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, extent = {{-100, 100}, {100, -100}}), Text(origin = {0, 1}, lineColor = {0, 0, 255}, extent = {{-58, 29}, {58, -29}}, textString = "RV")}));
     end RV;
+    
+    model RVfeedforward
+        import SI = Modelica.Units.SI;
+      parameter SI.MomentOfInertia Jtotal = 474.5721 + 59 "Total moment of inertia" annotation(
+        Dialog(group = "Mechanical Data")); 
+      parameter SI.RotationalDampingConstant Dtotal = 0.3925 "Viscous total friction" annotation(
+        Dialog(group = "Mechanical Data"));
+      parameter SI.Time ts_Wrm = 5 "Settiling time by speed" annotation(
+        Dialog(group = "Velocity Control Data"));
+      parameter Real zeta_Wrm = 0.7 "Damping constant by speed" annotation(
+        Dialog(group = "Velocity Control Data"));
+      parameter Real fcut_Wrm = 10 "Fcut filter" annotation(
+        Dialog(group = "Velocity Control Data"));
+    
+     
+      parameter Real kp = 8 * Jtotal * zeta_Wrm ^ 2 / ts_Wrm - Dtotal;
+      parameter Real ki = 16 * Jtotal * zeta_Wrm ^ 2 / ts_Wrm ^ 2;
+      
+      Modelica.Blocks.Interfaces.RealInput W annotation(
+        Placement(visible = true, transformation(origin = {-92, -20}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Modelica.Blocks.Interfaces.RealOutput Te annotation(
+        Placement(visible = true, transformation(origin = {140, -6}, extent = {{-10, -10}, {10, 10}}, rotation = 0), iconTransformation(origin = {110, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      Modelica.Blocks.Interfaces.RealInput Wref annotation(
+        Placement(visible = true, transformation(origin = {-92, 20}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-1.77636e-15, -110}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
+      Modelica.Blocks.Math.Add add(k2 = -1) annotation(
+        Placement(visible = true, transformation(origin = {-6, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Continuous.Integrator integrator(initType = Modelica.Blocks.Types.Init.SteadyState, k = ki)  annotation(
+        Placement(visible = true, transformation(origin = {28, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Math.Gain gain(k = kp)  annotation(
+        Placement(visible = true, transformation(origin = {-2, -36}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Math.Add add1(k2 = -1)  annotation(
+        Placement(visible = true, transformation(origin = {62, -6}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Interfaces.RealInput Tm annotation(
+        Placement(visible = true, transformation(origin = {-94, 66}, extent = {{-20, -20}, {20, 20}}, rotation = 0), iconTransformation(origin = {-82, -70}, extent = {{-10, -10}, {10, 10}}, rotation = 90)));
+    Modelica.Blocks.Math.Add add2(k1 = -1)  annotation(
+        Placement(visible = true, transformation(origin = {100, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Continuous.Filter filter(f_cut = fcut_Wrm, order = 1)  annotation(
+        Placement(visible = true, transformation(origin = {46, 66}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    Modelica.Blocks.Math.Gain gain1(k = 1) annotation(
+        Placement(visible = true, transformation(origin = {-4, 66}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    equation
+      connect(W, add.u2) annotation(
+        Line(points = {{-92, -20}, {-28, -20}, {-28, -6}, {-18, -6}}, color = {0, 0, 127}));
+      connect(Wref, add.u1) annotation(
+        Line(points = {{-92, 20}, {-40, 20}, {-40, 6}, {-18, 6}}, color = {0, 0, 127}));
+    connect(add.y, integrator.u) annotation(
+        Line(points = {{6, 0}, {16, 0}}, color = {0, 0, 127}));
+    connect(integrator.y, add1.u1) annotation(
+        Line(points = {{40, 0}, {50, 0}}, color = {0, 0, 127}));
+    connect(gain.y, add1.u2) annotation(
+        Line(points = {{10, -36}, {44, -36}, {44, -12}, {50, -12}}, color = {0, 0, 127}));
+    connect(gain.u, W) annotation(
+        Line(points = {{-14, -36}, {-92, -36}, {-92, -20}}, color = {0, 0, 127}));
+    connect(add1.y, add2.u2) annotation(
+        Line(points = {{74, -6}, {88, -6}}, color = {0, 0, 127}));
+    connect(add2.y, Te) annotation(
+        Line(points = {{112, 0}, {140, 0}, {140, -6}}, color = {0, 0, 127}));
+    connect(filter.y, add2.u1) annotation(
+        Line(points = {{57, 66}, {78, 66}, {78, 6}, {88, 6}}, color = {0, 0, 127}));
+    connect(Tm, gain1.u) annotation(
+        Line(points = {{-94, 66}, {-16, 66}}, color = {0, 0, 127}));
+    connect(gain1.y, filter.u) annotation(
+        Line(points = {{8, 66}, {34, 66}}, color = {0, 0, 127}));
+      annotation(
+        Icon(graphics = {Ellipse(lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, extent = {{-100, 100}, {100, -100}}), Text(origin = {0, 1}, lineColor = {0, 0, 255}, extent = {{-58, 29}, {58, -29}}, textString = "RV")}));
+    end RVfeedforward;
 
     model RQs
       parameter Real ki_Q = 30 "Integral constant by reactivepower" annotation(
@@ -384,7 +450,7 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Placement(visible = true, transformation(origin = {5, 31}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
   Modelica.Electrical.Polyphase.Basic.Star star3 annotation(
         Placement(visible = true, transformation(origin = {52, -22}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
-  Modelica.Blocks.Sources.Step step(height = 0, startTime = 1) annotation(
+  Modelica.Blocks.Sources.Step step(height = 10.5e3, startTime = 1) annotation(
         Placement(visible = true, transformation(origin = {-64, 52}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
   Modelica.Blocks.Sources.Step step3(height = 0, offset = 0) annotation(
         Placement(visible = true, transformation(origin = {84, 32}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
@@ -392,7 +458,7 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Placement(visible = true, transformation(origin = {14, 2}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
   Modelica.Electrical.Analog.Basic.Ground ground2 annotation(
         Placement(visible = true, transformation(origin = {-36, -34}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
-  Modelica.Blocks.Sources.Step step1(height = 0, offset = -10.5e3, startTime = 0) annotation(
+  Modelica.Blocks.Sources.Step step1(height = -10.5e3, startTime = 6) annotation(
         Placement(visible = true, transformation(origin = {-64, 38}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
   AERO_model.DFIG_model.MIT mit(D = 0) annotation(
         Placement(visible = true, transformation(origin = {48, 40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
@@ -406,7 +472,7 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Placement(visible = true, transformation(origin = {-18, -2}, extent = {{-6, 6}, {6, -6}}, rotation = 0)));
   Modelica.Blocks.Sources.Step step2(height = 0, offset = 0, startTime = 0) annotation(
         Placement(visible = true, transformation(origin = {84, 18}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
-  Modelica.Blocks.Sources.Step step4(height = 5, offset = 0, startTime = 5) annotation(
+  Modelica.Blocks.Sources.Step step4(height = 0, offset = 0, startTime = 0) annotation(
         Placement(visible = true, transformation(origin = {-84, 18}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
   Modelica.Mechanics.Rotational.Sources.Torque torque annotation(
         Placement(visible = true, transformation(origin = {-28, 40}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
@@ -479,12 +545,14 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Line(points = {{-10, 31.6}, {-10, 31}, {0, 31}}, color = {0, 0, 255}));
   connect(rQs.Qout, control1.Qs_esp) annotation(
         Line(points = {{18, 32}, {18, 14}}, color = {0, 0, 127}));
+  connect(add.y, rv.Tm) annotation(
+        Line(points = {{-42, 40}, {-34, 40}, {-34, 28}, {0, 28}}, color = {0, 0, 127}));
     protected
       annotation(
         experiment(StartTime = 0, StopTime = 12, Tolerance = 1e-06, Interval = 0.001));
     end controleDFIG;
     
-    model controleDFIG_parametrica
+    model controleDFIGfeedforward
       extends Modelica.Icons.Example;
       import pi = Modelica.Constants.pi;
     Modelica.Blocks.Math.Add add annotation(
@@ -497,26 +565,22 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Placement(visible = true, transformation(origin = {-36, -22}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
     Modelica.Electrical.Polyphase.Sources.CosineVoltage cosineVoltage(V = fill(sqrt(2 / 3) * 690, 3), f = fill(60, 3)) annotation(
         Placement(visible = true, transformation(origin = {-36, -8}, extent = {{-6, 6}, {6, -6}}, rotation = -90)));
-    AERO_model.DFIG_model.RV rv(Dtotal = 1, Jtotal = 59, ts_Wrm = 1, zeta_Wrm = 1) annotation(
-        Placement(visible = true, transformation(origin = {5, 31}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
     Modelica.Electrical.Polyphase.Basic.Star star3 annotation(
         Placement(visible = true, transformation(origin = {52, -22}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
-    Modelica.Blocks.Sources.Step step(height = -10.5e3, startTime = 1) annotation(
+    Modelica.Blocks.Sources.Step step(height = 10.5e3, startTime = 1) annotation(
         Placement(visible = true, transformation(origin = {-64, 52}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
     Modelica.Blocks.Sources.Step step3(height = 0, offset = 0) annotation(
         Placement(visible = true, transformation(origin = {84, 32}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
-    AERO_model.DFIG_model.CONTROL control1(Lls =  6.32e-5, Lm =  1.8944e-3)  annotation(
+    AERO_model.DFIG_model.CONTROL control1 annotation(
         Placement(visible = true, transformation(origin = {14, 2}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
     Modelica.Electrical.Analog.Basic.Ground ground2 annotation(
         Placement(visible = true, transformation(origin = {-36, -34}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
-    Modelica.Blocks.Sources.Step step1(height = 10.5e3, offset = 0, startTime = 6) annotation(
+    Modelica.Blocks.Sources.Step step1(height = -10.5e3, startTime = 6) annotation(
         Placement(visible = true, transformation(origin = {-64, 38}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
     AERO_model.DFIG_model.MIT mit(D = 0) annotation(
         Placement(visible = true, transformation(origin = {48, 40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     Modelica.Blocks.Math.Add add2 annotation(
         Placement(visible = true, transformation(origin = {-66, 20}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
-    AERO_model.DFIG_model.RQs rQs(ki_Q = 3)  annotation(
-        Placement(visible = true, transformation(origin = {23, 31}, extent = {{5, -5}, {-5, 5}}, rotation = 0)));
     Modelica.Blocks.Math.Add add1 annotation(
         Placement(visible = true, transformation(origin = {64, 20}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
     AERO_model.DFIG_model.PLL pll1 annotation(
@@ -529,77 +593,85 @@ DFIG"), Text(origin = {-90, -71}, lineColor = {0, 0, 255}, extent = {{-6, 15}, {
         Placement(visible = true, transformation(origin = {-28, 40}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
     Modelica.Electrical.Polyphase.Sources.SignalCurrent signalCurrent annotation(
         Placement(visible = true, transformation(origin = {52, 2}, extent = {{-6, -6}, {6, 6}}, rotation = 90)));
-    Modelica.Blocks.Sources.Step step5(height = 0, offset = 190) annotation(
+    Modelica.Blocks.Sources.Step step5(height = 0, offset = 180) annotation(
         Placement(visible = true, transformation(origin = {-84, 32}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
     Modelica.Electrical.Analog.Basic.Ground ground3 annotation(
         Placement(visible = true, transformation(origin = {52, -34}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
     Modelica.Mechanics.Rotational.Sensors.SpeedSensor speedSensor annotation(
         Placement(visible = true, transformation(origin = {-10, 36}, extent = {{-4, -4}, {4, 4}}, rotation = -90)));
+  DFIG_model.RQs rQs(ki_Q = 10) annotation(
+        Placement(visible = true, transformation(origin = {23, 31}, extent = {{5, -5}, {-5, 5}}, rotation = 0)));
+  AERO_model.DFIG_model.RVfeedforward rVfeedforward(fcut_Wrm = 5, ts_Wrm = 1, zeta_Wrm = 1)  annotation(
+        Placement(visible = true, transformation(origin = {3, 27}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
     equation
-    connect(step3.y, add1.u1) annotation(
+      connect(step3.y, add1.u1) annotation(
         Line(points = {{79.6, 32}, {75.6, 32}, {75.6, 22}, {67.6, 22}}, color = {0, 0, 127}));
-    connect(pll1.VqPll, control1.Vqs_PLL) annotation(
+      connect(pll1.VqPll, control1.Vqs_PLL) annotation(
         Line(points = {{-11.4, -5.6}, {3.6, -5.6}}, color = {0, 0, 255}));
-    connect(step5.y, add2.u1) annotation(
+      connect(step5.y, add2.u1) annotation(
         Line(points = {{-79.6, 32}, {-75.6, 32}, {-75.6, 22}, {-69.6, 22}}, color = {0, 0, 127}));
-    connect(torque.flange, mit.eixo) annotation(
+      connect(torque.flange, mit.eixo) annotation(
         Line(points = {{-24, 40}, {38, 40}}, color = {0, 0, 255}));
-    connect(star3.plug_p, signalCurrent.plug_p) annotation(
+      connect(star3.plug_p, signalCurrent.plug_p) annotation(
         Line(points = {{52, -16}, {52, -4}}, color = {0, 0, 255}));
-    connect(pll1.WePll, control1.We_PLL) annotation(
+      connect(pll1.WePll, control1.We_PLL) annotation(
         Line(points = {{-11.4, -2}, {3.6, -2}}, color = {0, 0, 255}));
-    connect(ground2.p, star2.pin_n) annotation(
+      connect(ground2.p, star2.pin_n) annotation(
         Line(points = {{-36, -30}, {-36, -28}}, color = {0, 0, 255}));
-    connect(add.y, torque.tau) annotation(
+      connect(add.y, torque.tau) annotation(
         Line(points = {{-41.6, 40}, {-32.6, 40}}, color = {0, 0, 127}));
-    connect(step.y, add.u1) annotation(
+      connect(step.y, add.u1) annotation(
         Line(points = {{-59.6, 52}, {-55.6, 52}, {-55.6, 42}, {-49.6, 42}}, color = {0, 0, 127}));
-    connect(reactivePowerSensor1.plug_n, mit.plug_s) annotation(
+      connect(reactivePowerSensor1.plug_n, mit.plug_s) annotation(
         Line(points = {{35, 53}, {49, 53}, {49, 49}}, color = {0, 0, 255}));
-    connect(reactivePowerSensor1.plug_p, cosineVoltage.plug_p) annotation(
+      connect(reactivePowerSensor1.plug_p, cosineVoltage.plug_p) annotation(
         Line(points = {{27, 53}, {-36, 53}, {-36, -2}}, color = {0, 0, 255}));
-    connect(cosineVoltage.plug_p, pll1.vabc) annotation(
+      connect(cosineVoltage.plug_p, pll1.vabc) annotation(
         Line(points = {{-36, -2}, {-24, -2}}, color = {0, 0, 255}));
-    connect(rv.Te, control1.Te_esp) annotation(
-        Line(points = {{10.5, 31}, {10.5, 13}}, color = {0, 0, 255}));
-    connect(pll1.ThetaPll, control1.thetaE_PLL) annotation(
+      connect(pll1.ThetaPll, control1.thetaE_PLL) annotation(
         Line(points = {{-11.4, 1.6}, {3.6, 1.6}}, color = {0, 0, 255}));
-    connect(control1.iabcr, signalCurrent.i) annotation(
+      connect(control1.iabcr, signalCurrent.i) annotation(
         Line(points = {{24.9, 2.1}, {44.9, 2.1}}, color = {0, 0, 255}, thickness = 0.5));
-    connect(step4.y, add2.u2) annotation(
+      connect(step4.y, add2.u2) annotation(
         Line(points = {{-79.6, 18}, {-70.6, 18}}, color = {0, 0, 127}));
-    connect(cosineVoltage.plug_n, star2.plug_p) annotation(
+      connect(cosineVoltage.plug_n, star2.plug_p) annotation(
         Line(points = {{-36, -14}, {-36, -16}}, color = {0, 0, 255}));
-    connect(speedSensor.w, control1.Wrm) annotation(
-        Line(points = {{-10, 31.6}, {-10, 8.6}, {3, 8.6}}, color = {0, 0, 255}));
-    connect(step1.y, add.u2) annotation(
+  connect(speedSensor.w, control1.Wrm) annotation(
+        Line(points = {{-10, 32}, {-10, 8.6}, {3, 8.6}}, color = {0, 0, 255}));
+      connect(step1.y, add.u2) annotation(
         Line(points = {{-59.6, 38}, {-50.6, 38}}, color = {0, 0, 127}));
-    connect(reactivePowerSensor1.reactivePower, rQs.Qs) annotation(
-        Line(points = {{31, 48.6}, {31, 30.6}, {28.5, 30.6}}, color = {0, 0, 255}));
-    connect(signalCurrent.plug_n, resistor1.plug_p) annotation(
+      connect(signalCurrent.plug_n, resistor1.plug_p) annotation(
         Line(points = {{52, 8}, {67, 8}}, color = {0, 0, 255}));
-    connect(add2.y, rv.Wref) annotation(
-        Line(points = {{-61.6, 20}, {6.4, 20}, {6.4, 26}}, color = {0, 0, 127}));
-    connect(signalCurrent.plug_n, mit.plug_r) annotation(
+      connect(signalCurrent.plug_n, mit.plug_r) annotation(
         Line(points = {{52, 8}, {52, 32}}, color = {0, 0, 255}));
-    connect(add1.y, rQs.Qsref) annotation(
-        Line(points = {{60, 20}, {23, 20}, {23, 25.5}}, color = {0, 0, 127}));
-    connect(signalCurrent.plug_p, resistor1.plug_n) annotation(
+      connect(signalCurrent.plug_p, resistor1.plug_n) annotation(
         Line(points = {{52, -4}, {67, -4}}, color = {0, 0, 255}));
-    connect(speedSensor.flange, mit.eixo) annotation(
+  connect(speedSensor.flange, mit.eixo) annotation(
         Line(points = {{-10, 40}, {37, 40}}));
-    connect(ground3.p, star3.pin_n) annotation(
+      connect(ground3.p, star3.pin_n) annotation(
         Line(points = {{52, -30}, {52, -28}}, color = {0, 0, 255}));
-    connect(step2.y, add1.u2) annotation(
+      connect(step2.y, add1.u2) annotation(
         Line(points = {{79.6, 18}, {68.6, 18}}, color = {0, 0, 127}));
-    connect(speedSensor.w, rv.W) annotation(
-        Line(points = {{-10, 31.6}, {-10, 31}, {0, 31}}, color = {0, 0, 255}));
-    connect(rQs.Qout, control1.Qs_esp) annotation(
+      connect(rQs.Qout, control1.Qs_esp) annotation(
         Line(points = {{18, 32}, {18, 14}}, color = {0, 0, 127}));
+      connect(add1.y, rQs.Qsref) annotation(
+        Line(points = {{60, 20}, {23, 20}, {23, 25.5}}, color = {0, 0, 127}));
+      connect(reactivePowerSensor1.reactivePower, rQs.Qs) annotation(
+        Line(points = {{31, 48.6}, {31, 30.6}, {28.5, 30.6}}, color = {0, 0, 255}));
+  connect(add.y, rVfeedforward.Tm) annotation(
+        Line(points = {{-42, 40}, {-40, 40}, {-40, 23.5}, {-1, 23.5}}, color = {0, 0, 127}));
+  connect(rVfeedforward.Te, control1.Te_esp) annotation(
+        Line(points = {{8.5, 27}, {10, 27}, {10, 14}}, color = {0, 0, 127}));
+  connect(rVfeedforward.Te, control1.Te_esp) annotation(
+        Line(points = {{8, 26}, {10, 26}, {10, 14}}, color = {0, 0, 127}));
+  connect(rVfeedforward.W, speedSensor.w) annotation(
+        Line(points = {{-2.5, 27}, {-10, 27}, {-10, 32}}, color = {0, 0, 127}));
+  connect(rVfeedforward.Wref, add2.y) annotation(
+        Line(points = {{3, 21.5}, {2, 21.5}, {2, 20}, {-62, 20}}, color = {0, 0, 127}));
     protected
       annotation(
         experiment(StartTime = 0, StopTime = 12, Tolerance = 1e-06, Interval = 0.001));
-    end controleDFIG_parametrica;
+    end controleDFIGfeedforward;
   end Examples;
   annotation(
     uses(Modelica(version = "4.0.0")));
