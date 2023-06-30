@@ -80,13 +80,9 @@ package AERO_model
       parameter Real N = 111.5 "Relação de engrenagens" annotation(
         Dialog(group = "Aerodynamic Data"));
       // Servo mecanísmo para CONTROL_maqe de passo:
-      parameter Real ts = 50e-3 "Tempo de acomodação do servo mecanismo" annotation(
+      parameter Real kb = 0.7143 "kb do servo mecanismo" annotation(
         Dialog(group = "CONTROL_maq Data"));
-      parameter Real zeta = 0.7 "Amortecimento do servo mecanismo" annotation(
-        Dialog(group = "CONTROL_maq Data"));
-      parameter Real kb = 2/ts "kb do servo mecanismo" annotation(
-        Dialog(group = "CONTROL_maq Data"));
-      parameter Real tb = ts/(8*zeta^2) "ts do servo mecanismo" annotation(
+      parameter Real tb = 1.1905 "ts do servo mecanismo" annotation(
         Dialog(group = "CONTROL_maq Data"));
       // Declaração de variáveis auxiliares:
       SI.AngularFrequency Wtur;
@@ -170,7 +166,7 @@ package AERO_model
         Dialog(group = "Turbine Data"));
       parameter Real Vw_wmax = 11.175720428894175 "Velocidade do vento final no MPPT" annotation(
         Dialog(group = "Turbine Data"));
-      Modelica.Blocks.Tables.CombiTable1Ds combiTable1Ds(extrapolation = Modelica.Blocks.Types.Extrapolation.LastTwoPoints, fileName = "/home/uemura/TCCJoseVictor/Code/Simu2/mybeta.mat", tableName = "beta", tableOnFile = true, verboseRead = false) annotation(
+      Modelica.Blocks.Tables.CombiTable1Ds combiTable1Ds(extrapolation = Modelica.Blocks.Types.Extrapolation.LastTwoPoints, fileName = "/home/uemura/TCCJoseVictor/Simu/TCC/Simu2/mybeta.mat", tableName = "beta", tableOnFile = true, verboseRead = false) annotation(
         Placement(visible = true, transformation(origin = {50, -40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
     algorithm
       if Vw >= Vw_min and Vw < Vw_wmin then
@@ -659,7 +655,7 @@ package AERO_model
     model windturbineDFIG_simuR4
       extends Modelica.Icons.Example;
       import pi = Modelica.Constants.pi;
-      AERO_model.TURBINA_model.TURBINA turbina(ts = 1) annotation(
+      AERO_model.TURBINA_model.TURBINA turbina annotation(
         Placement(visible = true, transformation(origin = {-26, 38}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
       DFIG_model.CONTROL_maq CONTROL_maq annotation(
         Placement(visible = true, transformation(origin = {32, -14}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
@@ -693,7 +689,7 @@ package AERO_model
         Placement(visible = true, transformation(origin = {-26, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Basic.Resistor resistor(R = fill(10, 3)) annotation(
         Placement(visible = true, transformation(origin = {93, -14}, extent = {{-6, 5}, {6, -5}}, rotation = -90)));
-  Modelica.Blocks.Sources.Ramp ramp(duration = 0, height = 3, offset = 12, startTime = 1) annotation(
+  Modelica.Blocks.Sources.Ramp ramp(duration = 0, height = 5, offset = 12, startTime = 1) annotation(
         Placement(visible = true, transformation(origin = {-60, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Electrical.Polyphase.Sensors.PowerSensor powerSensor annotation(
         Placement(visible = true, transformation(origin = {-82, -6}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
@@ -758,7 +754,7 @@ package AERO_model
         Line(points = {{-88, -6}, {-94, -6}, {-94, -32}, {-82, -32}}, color = {0, 0, 255}));
     protected
       annotation(
-        experiment(StartTime = 0, StopTime = 12, Tolerance = 1e-06, Interval = 0.0001));
+        experiment(StartTime = 0, StopTime = 25, Tolerance = 1e-06, Interval = 0.000208333));
     end windturbineDFIG_simuR4;
   end Examples;
   annotation(
