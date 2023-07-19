@@ -689,9 +689,9 @@ package AERO_model
         Placement(visible = true, transformation(origin = {-26, 2}, extent = {{-8, -8}, {8, 8}}, rotation = 0)));
       Modelica.Electrical.Polyphase.Basic.Resistor resistor(R = fill(10, 3)) annotation(
         Placement(visible = true, transformation(origin = {93, -14}, extent = {{-6, 5}, {6, -5}}, rotation = -90)));
-  Modelica.Blocks.Sources.Ramp ramp(duration = 0, height = 5, offset = 12, startTime = 1) annotation(
+      Modelica.Blocks.Sources.Ramp ramp(duration = 0, height = 5, offset = 12, startTime = 1) annotation(
         Placement(visible = true, transformation(origin = {-60, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Modelica.Electrical.Polyphase.Sensors.PowerSensor powerSensor annotation(
+      Modelica.Electrical.Polyphase.Sensors.PowerSensor powerSensor annotation(
         Placement(visible = true, transformation(origin = {-82, -6}, extent = {{-6, -6}, {6, 6}}, rotation = -90)));
     equation
       connect(CONTROL_maq.iabcr, FonteCorrente.i) annotation(
@@ -740,22 +740,164 @@ package AERO_model
         Line(points = {{78, -32}, {78, -20}}, color = {0, 0, 255}));
       connect(turbina.flange_Eixo, mit.eixo) annotation(
         Line(points = {{-17, 38}, {64, 38}}));
-  connect(ramp.y, turbina.Vw) annotation(
+      connect(ramp.y, turbina.Vw) annotation(
         Line(points = {{-49, 38}, {-34, 38}}, color = {0, 0, 127}));
-  connect(ramp.y, CONTROL_tur.Vw) annotation(
+      connect(ramp.y, CONTROL_tur.Vw) annotation(
         Line(points = {{-49, 38}, {-40, 38}, {-40, 2}, {-34, 2}}, color = {0, 0, 127}));
-  connect(reactivePowerSensor.plug_p, powerSensor.pc) annotation(
+      connect(reactivePowerSensor.plug_p, powerSensor.pc) annotation(
         Line(points = {{46, 52}, {-82, 52}, {-82, 0}}, color = {0, 0, 255}));
-  connect(powerSensor.nc, rede.plug_p) annotation(
+      connect(powerSensor.nc, rede.plug_p) annotation(
         Line(points = {{-82, -12}, {-82, -18}}, color = {0, 0, 255}));
-  connect(powerSensor.pv, rede.plug_p) annotation(
+      connect(powerSensor.pv, rede.plug_p) annotation(
         Line(points = {{-76, -6}, {-70, -6}, {-70, -18}, {-82, -18}}, color = {0, 0, 255}));
-  connect(powerSensor.nv, star1.plug_p) annotation(
+      connect(powerSensor.nv, star1.plug_p) annotation(
         Line(points = {{-88, -6}, {-94, -6}, {-94, -32}, {-82, -32}}, color = {0, 0, 255}));
     protected
       annotation(
         experiment(StartTime = 0, StopTime = 25, Tolerance = 1e-06, Interval = 0.000208333));
     end windturbineDFIG_simuR4;
+
+    model modelSimu
+      extends Modelica.Icons.Example;
+      import pi = Modelica.Constants.pi;
+      Modelica.Electrical.Polyphase.Basic.Resistor R(R = fill(10, 3)) annotation(
+        Placement(visible = true, transformation(origin = {87, -6}, extent = {{-6, 5}, {6, -5}}, rotation = -90)));
+      Modelica.Electrical.Polyphase.Basic.Star Y1 annotation(
+        Placement(visible = true, transformation(origin = {-74, -30}, extent = {{6, -6}, {-6, 6}}, rotation = 90)));
+      Modelica.Electrical.Polyphase.Sources.CosineVoltage Rede(V = fill(sqrt(2/3)*690, 3), f = fill(60, 3)) annotation(
+        Placement(visible = true, transformation(origin = {-74, -16}, extent = {{-6, 6}, {6, -6}}, rotation = -90)));
+      Modelica.Electrical.Polyphase.Basic.Star Y2 annotation(
+        Placement(visible = true, transformation(origin = {72, -30}, extent = {{6, -6}, {-6, 6}}, rotation = 90)));
+      AERO_model.DFIG_model.CONTROL_maq CONTROL_maq1 annotation(
+        Placement(visible = true, transformation(origin = {14, -6}, extent = {{-10, 10}, {10, -10}}, rotation = 0)));
+      Modelica.Electrical.Analog.Basic.Ground G1 annotation(
+        Placement(visible = true, transformation(origin = {-74, -42}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+      AERO_model.DFIG_model.MIT mit(D = 0) annotation(
+        Placement(visible = true, transformation(origin = {68, 38}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+      AERO_model.DFIG_model.RQs rQs(ki_Q = 30) annotation(
+        Placement(visible = true, transformation(origin = {23, 23}, extent = {{5, -5}, {-5, 5}}, rotation = 0)));
+      AERO_model.DFIG_model.PLL pll1(zeta_PLL = 1) annotation(
+        Placement(visible = true, transformation(origin = {-40, -10}, extent = {{-6, 6}, {6, -6}}, rotation = 0)));
+      Modelica.Blocks.Sources.Step Qref(height = 0, offset = 0, startTime = 0) annotation(
+        Placement(visible = true, transformation(origin = {40, 14}, extent = {{4, -4}, {-4, 4}}, rotation = 0)));
+      Modelica.Electrical.Polyphase.Sources.SignalCurrent FC annotation(
+        Placement(visible = true, transformation(origin = {72, -6}, extent = {{-6, -6}, {6, 6}}, rotation = 90)));
+      Modelica.Electrical.Analog.Basic.Ground G2 annotation(
+        Placement(visible = true, transformation(origin = {72, -42}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+      Modelica.Mechanics.Rotational.Sensors.SpeedSensor Wmed annotation(
+        Placement(visible = true, transformation(origin = {-20, 30}, extent = {{-4, -4}, {4, 4}}, rotation = -90)));
+      AERO_model.DFIG_model.RV rv(ts_Wrm = 1, zeta_Wrm = .5) annotation(
+        Placement(visible = true, transformation(origin = {5, 23}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
+      Modelica.Electrical.Polyphase.Sensors.ReactivePowerSensor Qmed annotation(
+        Placement(visible = true, transformation(origin = {47, 47}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+      Modelica.Electrical.Polyphase.Sensors.PowerSensor Pmed annotation(
+        Placement(visible = true, transformation(origin = {-74, -2}, extent = {{4, -4}, {-4, 4}}, rotation = 90)));
+      Modelica.Blocks.Sources.Step Vw(height = 0, offset = 0, startTime = 0) annotation(
+        Placement(visible = true, transformation(origin = {-64, 34}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+      AERO_model.TURBINA_model.CONTROL_tur CONTROL_tur annotation(
+        Placement(visible = true, transformation(origin = {-40, 14}, extent = {{-6, -6}, {6, 6}}, rotation = 0)));
+      AERO_model.TURBINA_model.TURBINA turbina(ts = 1) annotation(
+        Placement(visible = true, transformation(origin = {-40, 34}, extent = {{-6, -6}, {6, 6}}, rotation = 0)));
+    equation
+      connect(Y2.plug_p, FC.plug_p) annotation(
+        Line(points = {{72, -24}, {72, -12}}, color = {0, 0, 255}));
+      connect(pll1.WePll, CONTROL_maq1.We_PLL) annotation(
+        Line(points = {{-33.4, -10}, {2.6, -10}}, color = {0, 0, 255}));
+      connect(G1.p, Y1.pin_n) annotation(
+        Line(points = {{-74, -38}, {-74, -36}}, color = {0, 0, 255}));
+      connect(Rede.plug_p, pll1.vabc) annotation(
+        Line(points = {{-74, -10}, {-47, -10}}, color = {0, 0, 255}));
+      connect(Rede.plug_n, Y1.plug_p) annotation(
+        Line(points = {{-74, -22}, {-74, -24}}, color = {0, 0, 255}));
+      connect(Wmed.w, CONTROL_maq1.Wrm) annotation(
+        Line(points = {{-20, 26}, {-20, 1}, {3, 1}}, color = {0, 0, 255}));
+      connect(FC.plug_n, R.plug_p) annotation(
+        Line(points = {{72, 0}, {87, 0}}, color = {0, 0, 255}));
+      connect(FC.plug_n, mit.plug_r) annotation(
+        Line(points = {{72, 0}, {72, 30}}, color = {0, 0, 255}));
+      connect(FC.plug_p, R.plug_n) annotation(
+        Line(points = {{72, -12}, {87, -12}}, color = {0, 0, 255}));
+      connect(G2.p, Y2.pin_n) annotation(
+        Line(points = {{72, -38}, {72, -36}}, color = {0, 0, 255}));
+      connect(Wmed.w, rv.W) annotation(
+        Line(points = {{-20, 26}, {-20, 23}, {-0.5, 23}}, color = {0, 0, 255}));
+      connect(rQs.Qout, CONTROL_maq1.Qs_esp) annotation(
+        Line(points = {{17.5, 23}, {17.5, 5}, {18, 5}}, color = {0, 0, 255}));
+      connect(rv.Te, CONTROL_maq1.Te_esp) annotation(
+        Line(points = {{10.5, 23}, {10.5, 5}, {10, 5}}, color = {0, 0, 255}));
+      connect(Qmed.reactivePower, rQs.Qs) annotation(
+        Line(points = {{47, 43}, {47, 23}, {28.5, 23}}, color = {0, 0, 255}));
+      connect(Qmed.plug_n, mit.plug_s) annotation(
+        Line(points = {{51, 47}, {69, 47}}, color = {0, 0, 255}));
+      connect(Pmed.nv, Rede.plug_n) annotation(
+        Line(points = {{-70, -2}, {-84, -2}, {-84, -22}, {-74, -22}}, color = {0, 0, 255}));
+      connect(Pmed.pv, Rede.plug_p) annotation(
+        Line(points = {{-78, -2}, {-66, -2}, {-66, -10}, {-74, -10}}, color = {0, 0, 255}));
+      connect(Pmed.pc, Qmed.plug_p) annotation(
+        Line(points = {{-74, 2}, {-74, 47}, {43, 47}}, color = {0, 0, 255}));
+      connect(Rede.plug_p, Pmed.nc) annotation(
+        Line(points = {{-74, -10}, {-74, -6}}, color = {0, 0, 255}));
+      connect(Qref.y, rQs.Qsref) annotation(
+        Line(points = {{35.6, 14}, {22.6, 14}, {22.6, 17.5}}, color = {0, 0, 255}));
+      connect(pll1.VqPll, CONTROL_maq1.Vqs_PLL) annotation(
+        Line(points = {{-33.4, -13.6}, {2.6, -13.6}}, color = {0, 0, 255}));
+      connect(pll1.ThetaPll, CONTROL_maq1.thetaE_PLL) annotation(
+        Line(points = {{-33.4, -6.4}, {2.6, -6.4}}, color = {0, 0, 255}));
+      connect(CONTROL_tur.beta, turbina.beta) annotation(
+        Line(points = {{-40, 21}, {-40, 27}}, color = {0, 0, 127}));
+      connect(CONTROL_tur.Wrm_opt, rv.Wref) annotation(
+        Line(points = {{-33, 14}, {5, 14}, {5, 17.5}}, color = {0, 0, 127}));
+      connect(Vw.y, turbina.Vw) annotation(
+        Line(points = {{-59.6, 34}, {-46.6, 34}}, color = {0, 0, 127}));
+      connect(Vw.y, CONTROL_tur.Vw) annotation(
+        Line(points = {{-60, 34}, {-54, 34}, {-54, 14}, {-47, 14}}, color = {0, 0, 127}));
+      connect(turbina.flange_Eixo, Wmed.flange) annotation(
+        Line(points = {{-33, 34}, {-20, 34}}));
+  connect(CONTROL_maq1.iabcr, FC.i) annotation(
+        Line(points = {{24, -6}, {64, -6}}, color = {0, 0, 127}, thickness = 0.5));
+  connect(mit.eixo, Wmed.flange) annotation(
+        Line(points = {{58, 38}, {-20, 38}, {-20, 34}}));
+    protected
+      annotation(
+        experiment(StartTime = 0, StopTime = 10, Tolerance = 1e-06, Interval = 0.000833333),
+        Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}), graphics = {Rectangle(origin = {4, 23}, lineColor = {0, 0, 255}, fillColor = {153, 193, 241}, pattern = LinePattern.Dash, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-8, 7}, {8, -7}}), Rectangle(origin = {24, 23}, lineColor = {0, 0, 255}, fillColor = {153, 193, 241}, pattern = LinePattern.Dash, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-8, 7}, {8, -7}}), Rectangle(origin = {68, 38}, lineColor = {0, 0, 255}, fillColor = {153, 193, 241}, pattern = LinePattern.Dash, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-12, 10}, {12, -10}}), Rectangle(origin = {-40, -10}, lineColor = {0, 0, 255}, fillColor = {153, 193, 241}, pattern = LinePattern.Dash, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-10, 8}, {10, -8}}), Rectangle(origin = {14, -5}, lineColor = {0, 0, 255}, fillColor = {153, 193, 241}, pattern = LinePattern.Dash, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-18, 13}, {18, -13}}), Rectangle(origin = {14, -20}, lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-18, 2}, {18, -2}}), Rectangle(origin = {-40, -20}, lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-10, 2}, {10, -2}}), Rectangle(origin = {68, 50}, lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-12, 2}, {12, -2}}), Rectangle(origin = {4, 32}, lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-8, 2}, {8, -2}}), Rectangle(origin = {24, 32}, lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-8, 2}, {8, -2}}), Text(origin = {68, 50}, textColor = {0, 0, 255}, extent = {{-10, 2}, {10, -2}}, textString = "MODELO MIT", textStyle = {TextStyle.Italic}), Text(origin = {14, -20}, textColor = {0, 0, 255}, extent = {{-16, 2}, {16, -2}}, textString = "MODELO EQ CORRENTE", textStyle = {TextStyle.Italic, TextStyle.Italic}), Text(origin = {-40, -20}, textColor = {0, 0, 255}, extent = {{-8, 2}, {8, -2}}, textString = "MODELO PLL", textStyle = {TextStyle.Italic}), Text(origin = {4, 32}, textColor = {0, 0, 255}, extent = {{-6, 2}, {6, -2}}, textString = "MODELO RV", textStyle = {TextStyle.Italic}), Text(origin = {24, 32}, textColor = {0, 0, 255}, extent = {{-6, 2}, {6, -2}}, textString = "MODELO RQ", textStyle = {TextStyle.Italic, TextStyle.Italic}), Text(extent = {{-22, 50}, {-22, 50}}, textString = "text"), Text(origin = {13, 36}, textColor = {85, 87, 83}, extent = {{-5, 2}, {5, -2}}, textString = "Tm, Wrm"), Text(origin = {-76, 22}, rotation = -90, textColor = {85, 87, 83}, extent = {{-8, 2}, {8, -2}}, textString = "vabcs, iabcs"), Text(origin = {74, 14}, rotation = -90, textColor = {85, 87, 83}, extent = {{-8, 2}, {8, -2}}, textString = "vabcr, iabcr"), Text(origin = {-23, 24}, rotation = -90, textColor = {85, 87, 83}, extent = {{-5, 2}, {5, -2}}, textString = "Wrm,med"), Text(origin = {6, 12}, rotation = 180, textColor = {85, 87, 83}, extent = {{-4, 2}, {4, -2}}, textString = "Te,reg"), Text(origin = {22, 12}, rotation = 180, textColor = {85, 87, 83}, extent = {{-4, 2}, {4, -2}}, textString = "Qs,reg"), Text(origin = {49, 27}, rotation = -90, textColor = {85, 87, 83}, extent = {{-4, 2}, {4, -2}}, textString = "Qs,med"), Text(origin = {-16, -4}, rotation = 180, textColor = {85, 87, 83}, extent = {{-4, 2}, {4, -2}}, textString = "Vq,PLL"), Text(origin = {-16, -8}, rotation = 180, textColor = {85, 87, 83}, extent = {{-4, 2}, {4, -2}}, textString = "We,PLL"), Text(origin = {-16, -12}, rotation = 180, textColor = {85, 87, 83}, extent = {{-4, 2}, {4, -2}}, textString = "Th,PLL"), Text(origin = {48, -4}, rotation = 180, textColor = {85, 87, 83}, extent = {{-4, 2}, {4, -2}}, textString = "iabcr"), Text(origin = {-11, 16}, rotation = 180, textColor = {85, 87, 83}, extent = {{-5, 2}, {5, -2}}, textString = "Wrm,ref"), Rectangle(origin = {-40, 4}, lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-10, 2}, {10, -2}}), Rectangle(origin = {-40, 14}, lineColor = {0, 0, 255}, fillColor = {153, 193, 241}, pattern = LinePattern.Dash, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-10, 8}, {10, -8}}), Text(origin = {-40, 4}, textColor = {0, 0, 255}, extent = {{-8, 2}, {8, -2}}, textString = "MODELO REG", textStyle = {TextStyle.Italic}), Rectangle(origin = {-40, 44}, lineColor = {0, 0, 255}, fillColor = {255, 255, 255}, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-10, 2}, {10, -2}}), Rectangle(origin = {-40, 34}, lineColor = {0, 0, 255}, fillColor = {153, 193, 241}, pattern = LinePattern.Dash, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-10, 8}, {10, -8}}), Text(origin = {-40, 44}, textColor = {0, 0, 255}, extent = {{-8, 2}, {8, -2}}, textString = "MODELO TUR", textStyle = {TextStyle.Italic}), Text(origin = {-46, 24}, rotation = 180, textColor = {85, 87, 83}, extent = {{-6, 2}, {6, -2}}, textString = "Beta,ref")}));
+    end modelSimu;
+    
+    model modelSimu2
+      extends Modelica.Icons.Example;
+      import pi = Modelica.Constants.pi;
+      Modelica.Mechanics.Rotational.Sensors.SpeedSensor Wmed annotation(
+        Placement(visible = true, transformation(origin = {-28, 32}, extent = {{-4, -4}, {4, 4}}, rotation = -90)));
+      AERO_model.DFIG_model.RV rv(ts_Wrm = 1, zeta_Wrm = .5) annotation(
+        Placement(visible = true, transformation(origin = {-21, 17}, extent = {{-5, -5}, {5, 5}}, rotation = 0)));
+      Modelica.Blocks.Sources.Step Vw(height = 0, offset = 0, startTime = 0) annotation(
+        Placement(visible = true, transformation(origin = {-64, 36}, extent = {{-4, -4}, {4, 4}}, rotation = 0)));
+      AERO_model.TURBINA_model.CONTROL_tur CONTROL_tur annotation(
+        Placement(visible = true, transformation(origin = {-40, 8}, extent = {{-6, -6}, {6, 6}}, rotation = 0)));
+      AERO_model.TURBINA_model.TURBINA turbina(ts = 1) annotation(
+        Placement(visible = true, transformation(origin = {-40, 36}, extent = {{-6, -6}, {6, 6}}, rotation = 0)));
+  AERO_model.DFIG_model.MIT mit(D = 0) annotation(
+        Placement(visible = true, transformation(origin = {-10, 36}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+    equation
+      connect(Wmed.w, rv.W) annotation(
+        Line(points = {{-28, 28}, {-28, 17}, {-26.5, 17}}, color = {0, 0, 255}));
+      connect(CONTROL_tur.beta, turbina.beta) annotation(
+        Line(points = {{-40, 15}, {-40, 29}}, color = {0, 0, 127}));
+      connect(Vw.y, turbina.Vw) annotation(
+        Line(points = {{-60, 36}, {-47, 36}}, color = {0, 0, 127}));
+      connect(Vw.y, CONTROL_tur.Vw) annotation(
+        Line(points = {{-60, 36}, {-54, 36}, {-54, 8}, {-47, 8}}, color = {0, 0, 127}));
+      connect(turbina.flange_Eixo, Wmed.flange) annotation(
+        Line(points = {{-33, 36}, {-28, 36}}));
+  connect(Wmed.flange, mit.eixo) annotation(
+        Line(points = {{-28, 36}, {-21, 36}}));
+  connect(CONTROL_tur.Wrm_opt, rv.Wref) annotation(
+        Line(points = {{-33.4, 8}, {-21, 8}, {-21, 11.5}}, color = {0, 0, 127}));
+    protected
+      annotation(
+        experiment(StartTime = 0, StopTime = 10, Tolerance = 1e-06, Interval = 0.000833333),
+        Diagram(coordinateSystem(extent = {{-100, -100}, {100, 100}}), graphics = {Text(extent = {{-22, 50}, {-22, 50}}, textString = "text"), Rectangle(origin = {-40, 8}, lineColor = {0, 0, 255}, fillColor = {153, 193, 241}, pattern = LinePattern.Dash, fillPattern = FillPattern.Solid, lineThickness = 0.5, extent = {{-10, 8}, {10, -8}})}));
+    end modelSimu2;
   end Examples;
   annotation(
     uses(Modelica(version = "4.0.0")));
